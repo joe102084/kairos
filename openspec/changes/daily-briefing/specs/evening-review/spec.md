@@ -38,3 +38,24 @@
 - **WHEN** 當日為星期六或星期日
 - **THEN** 系統 SHALL 跳過 email 和工作相關區塊
 - **AND** 改為聚焦 side project 進度和個人目標
+
+### Requirement: Daily Log Auto-Generation
+
+Evening review 完成 Telegram 推送後，SHALL 將當日客觀事實寫入 Obsidian Vault。
+
+#### Scenario: New daily log
+- **WHEN** `Vault/Logs/YYYY-MM-DD.md` 不存在
+- **THEN** 系統 SHALL 建立該檔案，包含 Meetings、Completed 區塊
+- **AND** 標記 `#source/kairos` 以區分機器生成與手動內容
+- **AND** 底部保留空白的 `## Diary` 區塊供 Jo 手動填寫
+
+#### Scenario: Existing daily log
+- **WHEN** `Vault/Logs/YYYY-MM-DD.md` 已存在（Jo 或其他 session 已寫入）
+- **THEN** 系統 SHALL 在檔案末尾 APPEND `## Kairos Auto-Log` 區塊
+- **AND** 不得覆蓋或修改既有內容
+
+#### Scenario: Content boundary
+- **WHEN** 系統寫入 daily log
+- **THEN** 系統 SHALL 僅記錄客觀事實（會議、完成的 task、code changes）
+- **AND** 不得加入詮釋、情緒判斷或主觀評論
+- **AND** Jo 的個人反思由 second-brain skill 手動觸發寫入，不在此範圍

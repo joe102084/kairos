@@ -5,7 +5,7 @@ Kairos 的 Phase A 目標是建立每日兩次的自動化 briefing 系統。所
 ## Goals / Non-Goals
 
 **Goals:**
-- 每日 09:00 / 22:00 SGT 自動產生並推送 briefing
+- 每日 06:00 / 18:00 SGT 自動產生並推送 briefing
 - 使用既有 MCP tools，不引入新的 infrastructure
 - Token 消耗可控（~$10/month）
 - 非工程師可維護（改 config 而非改 code）
@@ -80,9 +80,25 @@ kairos/
 
 launchd plists 放在 `~/Library/LaunchAgents/com.kairos.{morning,evening}.plist`。
 
+### Decision 6: Daily Log — 事實自動、反思手動
+
+Evening briefing 送完 Telegram 後，自動將客觀事實寫入 `Vault/Logs/YYYY-MM-DD.md`。
+
+**Why:** Obsidian Vault 是 Jo 的 second brain，不能被 AI 生成的詮釋污染。自動寫入的內容嚴格限定為客觀事實（會議、完成的 task），標記 `#source/kairos`。個人反思由 Jo 手動觸發 second-brain skill 寫入。
+
+**Trade-off:** 自動 log 的內容可能不完整（只有 claude-mem 和 Calendar 記錄到的），但寧可少寫也不誤寫。底部的 `## Diary` 區塊永遠留給 Jo。
+
+### Decision 7: 專案位置 `~/.kairos/`
+
+專案從 `~/Documents/Claude/kairos/` 移至 `~/.kairos/`。
+
+**Why:** macOS TCC (Transparency, Consent, and Control) 保護 `~/Documents/`，launchd agents 無法存取該路徑下的檔案。`~/.kairos/` 不受 TCC 限制，launchd 可正常執行 shell wrapper。
+
 ## Risks / Trade-offs
 
 - Cloud MCP connectors 在 `-p` mode 可能需要 bridge session → 先手動測試，失敗時 graceful skip
-- launchd 環境的 PATH 不含 `claude` → plist 中顯式設定 PATH
+- launchd 環境的 PATH 不含 `claude` → plist 中顯式設定 PATH，且使用 `/bin/zsh` 顯式調用 script
 - Telegram plugin 在 `-p` mode 的 boot/shutdown 行為未知 → 先手動驗證
 - System prompt 會隨使用迭代調整 → 預留 Phase 5 做 prompt refinement
+- macOS TCC 限制 `~/Documents/` 存取 → 專案移至 `~/.kairos/`（Decision 7）
+- 自動 daily log 可能寫入不完整的事實 → 寧可少寫，不加詮釋（Decision 6）
