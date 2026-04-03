@@ -25,3 +25,32 @@ discuss? → propose → apply ⇄ ingest → archive
 Changes can be parked（暫存）— temporarily moved out of `openspec/changes/`. Parked changes won't appear in `spectra list` but can be found with `spectra list --parked`. To restore: `spectra unpark <name>`. The `/spectra:apply` and `/spectra:ingest` skills handle parked changes automatically.
 
 <!-- SPECTRA:END -->
+
+# Kairos Project Rules
+
+## Spec-Code Sync (MANDATORY)
+
+Every implementation change MUST be reflected in the corresponding spec artifacts:
+- Feature added/changed → update `specs/`, `design.md`, `tasks.md`
+- Architecture decision → add to `design.md` Decisions section
+- New risk discovered → add to `design.md` Risks section
+- Schedule or config changed → update all references across specs
+
+Run `spectra validate` and `spectra analyze` after updating specs to catch gaps.
+
+## Git Discipline
+
+- Every change gets its own commit — do NOT batch unrelated changes
+- Spec updates and code changes may share a commit if tightly coupled, but prefer separate commits when the scope is distinct
+- Commit message format: `type: description` (feat, fix, docs, refactor, chore)
+- This project will be published to GitHub — keep history clean and meaningful
+
+## Obsidian Vault Boundary
+
+- Kairos auto-writes to `Vault/Logs/` with `#source/kairos` tag — objective facts only
+- Personal reflections are triggered manually by Jo via the `second-brain` skill
+- NEVER write interpretive or emotional content to the Vault automatically
+
+## Project Location
+
+This project lives at `~/.kairos/` (not `~/Documents/`) to avoid macOS TCC restrictions on launchd agents.
