@@ -1,0 +1,4 @@
+logs/
+config.env
+.spectra/
+openspec/.vector-search.db*

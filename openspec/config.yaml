@@ -1,0 +1,29 @@
+schema: spec-driven
+
+context: |
+  Project: Kairos — Personal daily briefing system
+  Tech stack: Shell script (zsh), Claude Code CLI (-p mode), Markdown
+  Runtime: macOS launchd on Mac mini (24/7)
+  Data sources (all via existing MCP tools):
+    - claude-mem: SQLite work log (search/timeline/get_observations)
+    - Obsidian Vault: Personal knowledge base at ~/Documents/Claude/Vault/
+    - Telegram Bot: Grammy framework, reply/check_messages tools
+    - Gmail MCP: gmail_search_messages, gmail_read_message
+    - Google Calendar MCP: gcal_list_events
+    - Aqara MCP: device_query, run_scenes (future Phase B)
+  Key constraint: No new servers or daemons — orchestrate existing tools only
+  Target: Non-engineer maintainable, token-efficient (~$10/month)
+
+rules:
+  proposal:
+    - Include explicit "Not doing" section
+    - Reference which existing MCP tools will be used
+  specs:
+    - Use WHEN/THEN Gherkin format
+    - Include token budget constraints as requirements
+  design:
+    - Document why launchd over cron
+    - Document permission model decision
+  tasks:
+    - Each task should be completable in under 30 minutes
+    - Include verification step for each task
