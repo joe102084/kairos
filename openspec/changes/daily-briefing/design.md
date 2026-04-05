@@ -80,7 +80,17 @@ kairos/
 
 launchd plists 放在 `~/Library/LaunchAgents/com.kairos.{morning,evening}.plist`。
 
-### Decision 6: Daily Log — 事實自動、反思手動
+### Decision 6: Telegram Delivery via Direct Bot API (not MCP Plugin)
+
+Claude 只負責生成 briefing 文字至 stdout，shell wrapper 透過 `curl` 直接呼叫 Telegram Bot API 發送。
+
+**Why:** Telegram MCP plugin 在 launchd 觸發的 `-p` mode 下不穩定——有時能載入、有時不能（4/4 evening 和 4/5 morning 失敗，4/3 evening 和 4/4 morning 成功）。根本原因是 plugin 作為 bun subprocess 在 headless 環境下的初始化不確定性。
+
+直接 Bot API 呼叫（curl）完全不依賴 Claude Code 的 plugin 系統，100% 可靠。Shell wrapper 還包含 Markdown → plain text 的 fallback，確保即使格式解析失敗也能送達。
+
+**Trade-off:** Claude 無法確認訊息是否送達（它只輸出文字），但 shell wrapper 的 log 會記錄 message_id。
+
+### Decision 7: Daily Log — 事實自動、反思手動
 
 Evening briefing 送完 Telegram 後，自動將客觀事實寫入 `Vault/Logs/YYYY-MM-DD.md`。
 
@@ -88,7 +98,7 @@ Evening briefing 送完 Telegram 後，自動將客觀事實寫入 `Vault/Logs/Y
 
 **Trade-off:** 自動 log 的內容可能不完整（只有 claude-mem 和 Calendar 記錄到的），但寧可少寫也不誤寫。底部的 `## Diary` 區塊永遠留給 Jo。
 
-### Decision 7: 專案位置 `~/.kairos/`
+### Decision 8: 專案位置 `~/.kairos/`
 
 專案從 `~/Documents/Claude/kairos/` 移至 `~/.kairos/`。
 

@@ -27,12 +27,14 @@
 
 ### Requirement: Evening Telegram Delivery
 
-系統 SHALL 將 evening review 透過 Telegram 發送，格式與 morning briefing 一致。
+Claude 生成 evening review 至 stdout，shell wrapper 透過 Telegram Bot API 發送，機制與 morning briefing 一致。
 
 #### Scenario: Successful delivery
 - **WHEN** review 內容組合完成
-- **THEN** 系統 SHALL 發送一則 Telegram 訊息
+- **THEN** Claude SHALL 輸出 review 文字至 stdout
+- **AND** shell wrapper SHALL 透過 Telegram Bot API 發送
 - **AND** 訊息長度不超過 2000 字元
+- **AND** 若 Markdown 解析失敗，自動以純文字重送
 
 #### Scenario: Weekend mode
 - **WHEN** 當日為星期六或星期日

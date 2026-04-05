@@ -27,13 +27,15 @@
 
 ### Requirement: Morning Telegram Delivery
 
-系統 SHALL 將 briefing 透過 Telegram `reply` tool 發送至指定 chat_id。
+Claude 生成 briefing 至 stdout，shell wrapper 透過 Telegram Bot API（curl）發送至指定 chat_id。
 
 #### Scenario: Successful delivery
 - **WHEN** briefing 內容組合完成
-- **THEN** 系統 SHALL 發送一則 Telegram 訊息
+- **THEN** Claude SHALL 輸出 briefing 文字至 stdout（不透過 MCP plugin 發送）
+- **AND** shell wrapper SHALL 透過 Telegram Bot API 發送
 - **AND** 訊息長度不超過 2000 字元
 - **AND** 使用 Telegram-compatible markdown 格式（bold, bullet points）
+- **AND** 若 Markdown 解析失敗，自動以純文字重送
 
 #### Scenario: Partial data source failure
 - **WHEN** 任一資料源（Calendar / Gmail / claude-mem / Obsidian）不可用
