@@ -46,9 +46,9 @@ PROMPT=$(cat "$TEMPLATE" | \
 # Log file for this run
 LOG_FILE="$SCRIPT_DIR/logs/${TODAY}-${BRIEFING_TYPE}.log"
 
-echo "=== Kairos ${BRIEFING_TYPE} briefing started at $(date) ===" >> "$LOG_FILE"
+echo "=== Kairos ${BRIEFING_TYPE} started at $(date) ===" >> "$LOG_FILE"
 
-# Run claude -p with system prompt
+# Run claude -p — generates briefing text to stdout
 run_briefing() {
   "$KAIROS_CLI" -p "$PROMPT" \
     --system-prompt-file "$SCRIPT_DIR/kairos-system.md" \
@@ -72,4 +72,32 @@ OUTPUT=$(run_briefing) || {
 }
 
 echo "$OUTPUT" >> "$LOG_FILE"
+
+# Use claude output directly as briefing text, truncated to Telegram limit
+BRIEFING=$(echo "$OUTPUT" | head -c 2000)
+
+# Send via Telegram Bot API (direct HTTP — no MCP dependency)
+# Use --data-urlencode for proper encoding of message text
+RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot${KAIROS_BOT_TOKEN}/sendMessage" \
+  --data-urlencode "text=$BRIEFING" \
+  -d "chat_id=$KAIROS_CHAT_ID" \
+  -d "parse_mode=Markdown" 2>&1)
+
+# Check delivery — extract "ok" field robustly
+if echo "$RESPONSE" | grep -q '"ok":true'; then
+  MSG_ID=$(echo "$RESPONSE" | grep -o '"message_id":[0-9]*' | head -1 | grep -o '[0-9]*')
+  echo "Telegram delivered: message_id=$MSG_ID" >> "$LOG_FILE"
+else
+  echo "Markdown delivery failed. Retrying as plain text..." >> "$LOG_FILE"
+  RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot${KAIROS_BOT_TOKEN}/sendMessage" \
+    --data-urlencode "text=$BRIEFING" \
+    -d "chat_id=$KAIROS_CHAT_ID" 2>&1)
+  if echo "$RESPONSE" | grep -q '"ok":true'; then
+    MSG_ID=$(echo "$RESPONSE" | grep -o '"message_id":[0-9]*' | head -1 | grep -o '[0-9]*')
+    echo "Telegram delivered (plain text): message_id=$MSG_ID" >> "$LOG_FILE"
+  else
+    echo "Telegram delivery FAILED. Response: $RESPONSE" >> "$LOG_FILE"
+  fi
+fi
+
 echo "=== Kairos ${BRIEFING_TYPE} completed at $(date) ===" >> "$LOG_FILE"
