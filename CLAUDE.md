@@ -36,7 +36,16 @@ Every implementation change MUST be reflected in the corresponding spec artifact
 - New risk discovered → add to `design.md` Risks section
 - Schedule or config changed → update all references across specs
 
-Run `spectra validate` and `spectra analyze` after updating specs to catch gaps.
+### Enforcement Checklist (run before EVERY commit that touches code)
+1. `spectra validate --changes <name>` — must pass
+2. `spectra analyze <name>` — must show 0 findings
+3. If either fails, fix the specs BEFORE committing
+
+### Version Tracking
+- Each feature/phase = one Spectra change (`spectra new change <name>`)
+- When a phase is complete → `spectra archive <name>`
+- Update `CHANGELOG.md` with every user-facing change (timestamp + summary)
+- Archived changes in `openspec/changes/archive/` serve as version history
 
 ## Git Discipline
 
