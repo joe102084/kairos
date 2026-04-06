@@ -4,8 +4,10 @@
 
 set -euo pipefail
 
-# Ensure PATH includes common locations for claude CLI
-export PATH="/Users/jo/.nvm/versions/node/v25.2.1/bin:/usr/local/bin:/opt/homebrew/bin:$HOME/.local/bin:$PATH"
+# Load nvm dynamically (no hardcoded Node version)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.local/bin:$PATH"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/config.env"
